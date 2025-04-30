@@ -15,7 +15,7 @@ from taiwan_civilcode_agent.configuration import VectorStore
 
 @tool(response_format="content_and_artifact")
 def search_civilcode_by_embedding(query: str):
-    """Retrieve information related to a query."""
+    """接收一個句子，返回與該句子在語意上最相關的台灣民法條文。搜尋是基於語意相似度，使用精煉、聚焦於法律概念的句子效果最佳。避免過於口語化或冗長的描述。"""
     vector_store = VectorStore()
     retrieved_docs = vector_store.similarity_search(query, k=5)
     serialized = "\n\n".join(
@@ -25,7 +25,7 @@ def search_civilcode_by_embedding(query: str):
     return serialized, retrieved_docs
 
 class SearchCivilcodeByArtcileForm(BaseModel):
-    """Index for civilcode: 1. 編(Part), 2. 章(Chapter), 3. 節(Section), 4. 款(Subsection), 5. 目(Item), 6. 條(Article)."""
+    """Index for civilcode: 1. 編(Part), 2. 章(Chapter), 3. 節(Section), 4. 款(Subsection), 5. 目(Item), 6. 條(Article)"""
     article_number: str
 
 @tool(response_format="content_and_artifact")
@@ -35,6 +35,8 @@ def search_civilcode_by_articleNumber(civilcode_search_form: SearchCivilcodeByAr
 
     if not article_number:
         return {"error": "article_number is required"}, None
+    elif not article_number.isdigit():
+        return {"error": "article_number must be a number"}, None
 
     conn = psycopg.connect(
         dbname="civilcode",
@@ -64,7 +66,7 @@ def search_civilcode_by_articleNumber(civilcode_search_form: SearchCivilcodeByAr
 
 @tool(response_format="content")
 def show_all_civilcode_index():
-    """你還可以根據領域來查詢相關法條，這是第一步：先使用show_all_civilcode_index工具，此工具將會給你所有可用查詢的篇章節。."""
+    """你還可以根據領域來查詢相關法條，這是第一步：先使用show_all_civilcode_index工具，此工具將會給你所有可用查詢的篇章節。"""
     with open("../data-pre-process/civilcode-index-110-01-20.json", encoding="utf-8") as file:
         index_data = json.load(file)
     titles = [item["title"] for item in index_data]
@@ -73,7 +75,7 @@ def show_all_civilcode_index():
 
 @tool(response_format="content")
 def search_civilcode_by_index(index_title: str):
-    """你還可以根據領域來查詢相關法條，這是第二步：對其輸入你想查詢的篇章節，例如：總則編 - 人章 - 法人節，就會回傳整個指定篇章節的法條。."""
+    """你還可以根據領域來查詢相關法條，這是第二步：對其輸入你想查詢的篇章節，例如：總則編 - 人章 - 法人節，就會回傳整個指定篇章節的法條。"""
     with open("../data-pre-process/civilcode-index-110-01-20.json", encoding="utf-8") as file:
         index_data = json.load(file)
 

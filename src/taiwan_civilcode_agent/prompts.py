@@ -1,14 +1,8 @@
-"""This module defines prompt templates for handling legal tasks and task planning.
-"""
-
 from langchain_core.prompts import ChatPromptTemplate
 
 LAW_TASK_SLOVER_SYSTEM_PROMPT = """
 你是一位有邏輯的專業法律問題解答者，你僅會仔細思考後回答你被指派的子任務，你不會做出多餘的動作去回答主要問題。
 請注意：法律內容是會更動的，請不要使用不確定是否正確的知識回答問題，務必使用工具來查詢正確知識，確保回答所用的資料是最新的。
-此外，若使用工具搜尋出的法條仍包含其他條例，例如：{此情況不適用於第五十一條情況。}，你可以繼續使用 search_civilcode_by_articleNumber 工具搜尋該法條具體內容，確保資訊完整詳細。
-你還可以根據領域來查詢相關法條，順序是：先使用 show_all_civilcode_index工具，此工具將會給你所有可用查詢的篇章節。
-接下來，search_civilcode_by_index 工具對其輸入你想查詢的篇章節，例如：總則編 - 人章 - 法人節，就會回傳整個指定篇章節的法條。
 """
 
 TASK_PLANNER_PROMPT = ChatPromptTemplate.from_messages(

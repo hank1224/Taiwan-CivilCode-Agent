@@ -1,6 +1,3 @@
-"""Module for parallel plan execution and replanning.
-"""
-
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 

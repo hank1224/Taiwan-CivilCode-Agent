@@ -1,6 +1,3 @@
-"""This module defines the workflow graph for the Taiwan Civil Code Agent.
-"""
-
 from langgraph.graph import END, START, StateGraph
 
 from taiwan_civilcode_agent.nodes import (
