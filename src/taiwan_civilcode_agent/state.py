@@ -32,3 +32,11 @@ class Act(BaseModel):
     action: Response | Plan = Field(
         description="如果你想要回應使用者，請使用「Response」。如果你需要進一步使用工具來獲得答案，請使用「Plan」。"
     )
+
+class Question(BaseModel):
+    question: str = Field(description="問題")
+    option_a: str = Field(description="選項A內容")
+    option_b: str = Field(description="選項B內容")
+    option_c: str = Field(description="選項C內容")
+    option_d: str = Field(description="選項D內容")
+    question_type: str = Field(description="問題類型")

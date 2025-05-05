@@ -4,18 +4,49 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from langgraph.graph import END
 from langgraph.prebuilt import create_react_agent
 
-from taiwan_civilcode_agent.configuration import GPT4oMini
+from taiwan_civilcode_agent.configuration import GPT4o, GPT4oMini
 from taiwan_civilcode_agent.prompts import (
     LAW_TASK_SLOVER_SYSTEM_PROMPT,
     REPLANNER_PROMPT,
     TASK_PLANNER_PROMPT,
 )
-from taiwan_civilcode_agent.state import Act, ParallelPlanExecute, Plan, Response
+from taiwan_civilcode_agent.state import (
+    Act,
+    ParallelPlanExecute,
+    Plan,
+    Question,
+    Response,
+)
 from taiwan_civilcode_agent.tools import TOOLS
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+def plan_step(state: ParallelPlanExecute):
+    """Generates the initial plan based on the input.
+
+    Uses an LLM with a specific prompt and structured output
+    to break down the initial input into a sequence of tasks.
+
+    Args:
+        state: The current state of the graph, containing the initial 'input'.
+
+    Returns:
+        A dictionary containing the generated 'plan' (list of steps) and
+        initializes 'current_step_index' to 0.
+    """
+    logger.info("Generating initial plan...")
+    llm_instance = GPT4oMini()
+    # Use the planner prompt and structured output model to create the plan
+    planner = TASK_PLANNER_PROMPT | llm_instance.with_structured_output(Plan)
+    plan = planner.invoke({"messages": [("user", state["input"])]})
+    logger.info(f"Initial plan generated with {len(plan.steps)} steps.")
+    return {
+        "plan": plan.steps,
+        "current_step_index": 0  # Initialize current_step_index
+    }
 
 
 def execute_parallel(state: ParallelPlanExecute):
@@ -48,7 +79,7 @@ def execute_parallel(state: ParallelPlanExecute):
     future_to_task_info = {}
     # Use ThreadPoolExecutor for I/O-bound tasks (like LLM API calls).
     # Consider ProcessPoolExecutor if the agent_executor is heavily CPU-bound and GIL-limited.
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=8) as executor:
         # Initialize the agent executor instance once for all tasks within the pool context
         # Assuming Gemini20Flash and create_react_agent are thread-safe or inexpensive to create
         llm_instance = GPT4oMini()
@@ -103,31 +134,6 @@ def execute_parallel(state: ParallelPlanExecute):
     return state
 
 
-def plan_step(state: ParallelPlanExecute):
-    """Generates the initial plan based on the input.
-
-    Uses an LLM with a specific prompt and structured output
-    to break down the initial input into a sequence of tasks.
-
-    Args:
-        state: The current state of the graph, containing the initial 'input'.
-
-    Returns:
-        A dictionary containing the generated 'plan' (list of steps) and
-        initializes 'current_step_index' to 0.
-    """
-    logger.info("Generating initial plan...")
-    llm_instance = GPT4oMini()
-    # Use the planner prompt and structured output model to create the plan
-    planner = TASK_PLANNER_PROMPT | llm_instance.with_structured_output(Plan)
-    plan = planner.invoke({"messages": [("user", state["input"])]})
-    logger.info(f"Initial plan generated with {len(plan.steps)} steps.")
-    return {
-        "plan": plan.steps,
-        "current_step_index": 0  # Initialize current_step_index
-    }
-
-
 def replan_step(state: ParallelPlanExecute):
     """Updates the plan based on the current state and execution results.
 
@@ -148,7 +154,7 @@ def replan_step(state: ParallelPlanExecute):
         ValueError: If the replanner returns an unexpected output type.
     """
     logger.info("Executing replan step...")
-    llm_instance = GPT4oMini()
+    llm_instance = GPT4o()
     # Use the replanner prompt and structured output to get the action (Respond or Plan)
     replanner = REPLANNER_PROMPT | llm_instance.with_structured_output(Act)
     output = replanner.invoke(state)

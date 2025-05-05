@@ -19,7 +19,7 @@ def search_civilcode_by_embedding(query: str):
     vector_store = VectorStore()
     retrieved_docs = vector_store.similarity_search(query, k=5)
     serialized = "\n\n".join(
-        (f"Source: {doc.metadata}\n" f"Content: {doc.page_content}")
+        (f"Source: {doc.metadata}\nContent: {doc.page_content}")
         for doc in retrieved_docs
     )
     return serialized, retrieved_docs

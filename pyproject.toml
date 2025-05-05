@@ -39,13 +39,18 @@ packages = ["taiwan_civilcode_agent"]
 
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
+    "E",   # pycodestyle errors (PEP 8 errors)
+    "W",   # pycodestyle warnings (PEP 8 warnings)
+    "F",   # pyflakes (potential bugs/errors)
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear (likely bugs)
+    "C4",  # flake8-comprehensions (list/dict/set comprehensions)
+    "UP",  # pyupgrade (modernize code)
+    "S",   # flake8-bandit (basic security implications)
+    "A",   # flake8-builtins (shadowing builtins)
+    "SIM", # flake8-simplify (simplify code)
+    "ISC", # flake8-implicit-str-concat (implicit string concatenation)
+    "PL",  # pylint (subset of pylint rules)
 ]
 ignore = [
     "E501",  # line too long, handled by black
