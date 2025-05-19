@@ -4,7 +4,9 @@
 
 Jupyter Notebook Version [1223-MultiHop-RAG](https://github.com/hank1224/DataTeam-RAG-training/tree/main/1223-MultiHop-RAG).
 
-Preview Workflow: [LangSmith Log](https://smith.langchain.com/public/801b3911-1617-41c3-86d4-050e740c4732/r)
+**Preview Workflow:**
+- [完整分發 Log](https://smith.langchain.com/public/bdcf7ab8-76ef-4401-ac05-61343f35fc45/r)
+- [子任務一 Log](https://smith.langchain.com/public/6c527134-0fd3-4002-8233-15064369e5f3/r)
 
 ![LangGraph_Studio_Preview](./static/LangGraph_Studio_Preview_0430.png)
 
